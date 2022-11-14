@@ -4,8 +4,6 @@ import (
 	"context"
 	"fmt"
 	"log"
-	"net/http"
-	"strconv"
 
 	// Importing the general purpose Cosmos blockchain client
 	"github.com/ignite/cli/ignite/pkg/cosmosclient"
@@ -43,18 +41,13 @@ func main() {
 			continue
 		}
 
+		fmt.Println("Transactions: ", txs)
+
 		for _, tx := range txs {
 			events, _ := tx.GetEvents()
 			fmt.Println(events)
 
 		}
-
-		fmt.Println(strconv.Itoa(int(latestHeight)))
-		resp, err := http.Get("http://0.0.0.0:26657/block_results?height=" + strconv.Itoa(int(latestHeight)))
-		if err != nil {
-			log.Fatalln(err)
-		}
-		fmt.Println(resp)
 	}
 
 }
