@@ -21,7 +21,7 @@ func main() {
 	// Prefix to use for account addresses.
 	// The address prefix was assigned to the auction blockchain
 	// using the `--address-prefix` flag during scaffolding.
-	addressPrefix := "auction"
+	addressPrefix := "cosmos"
 
 	// Create a Cosmos client instance
 	cosmos, err := cosmosclient.New(
@@ -33,11 +33,27 @@ func main() {
 		log.Fatal(err)
 	}
 
+	creatorName := "alice"
+	creatorAccount, err := cosmos.Account(creatorName)
+	if err != nil {
+		fmt.Println("Get Account Error: ", err)
+	}
+
 	accountName := "bob"
 
 	account, err := cosmos.Account(accountName)
 	if err != nil {
-		log.Fatal(err)
+		fmt.Println("Get Account Error: ", err)
+	}
+
+	createAcutionMsg := &types.MsgCreateAuction{
+		Name:    "Auction",
+		EndTime: 1985247882,
+	}
+	_, err1 := cosmos.BroadcastTx(context.Background(), creatorAccount, createAcutionMsg)
+
+	if err1 != nil {
+		fmt.Println("Create Auction Error: ", err1)
 	}
 
 	for {
@@ -72,6 +88,9 @@ func main() {
 			AuctionIndex: "1",
 			BidAmount:    encryptBidString,
 		}
+
+		fmt.Println("Encrypted String", encryptBidString)
+
 		broadcastResp, err := cosmos.BroadcastTx(context.Background(), account, broadcastMsg)
 		if err != nil {
 			log.Fatal(err)
@@ -81,14 +100,13 @@ func main() {
 
 }
 
-func EncryptString(secretMessage string,
-	key rsa.PublicKey) string {
+func EncryptString(secretMessage string, key rsa.PublicKey) string {
 	rng := rand.Reader
 	ciphertext, err := rsa.EncryptPKCS1v15(rng, &key,
 		[]byte(secretMessage))
 
 	if err != nil {
-		panic(err)
+		fmt.Println("Encrypt Error: ", err)
 	}
 
 	return base64.StdEncoding.EncodeToString(ciphertext)
